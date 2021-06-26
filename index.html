@@ -1,0 +1,121 @@
+<html>
+
+
+<script>
+
+  var boxY = 45;
+  var jumpInterval;
+  var numObstaclesSpawned = 1;
+  var gameSpeed = 1;
+  var isAlive = true;
+  var score=0;
+  var highScore=0;
+
+  window.onload = function()
+  {
+    spawnObstacle();
+    loadHighScore();
+    setInterval(function(){
+      score+=1;
+      var scoreLabel = document.getElementById("scoring");
+      scoreLabel.innerHTML = "High Score:"+ highScore +" Score:" + score;      
+
+    },100);
+  }
+  function loadHighScore(){
+    if(localStorage.getItem("highScore") != null);
+    {
+      highScore = localStorage.getItem("highScore");
+    }
+
+  }
+  function spawnObstacle()
+  {
+    numObstaclesSpawned += 1;
+    if (numObstaclesSpawned % 10 == 1)
+    {
+      gameSpeed *= 1.2;
+    }
+    var obstacleX = 100;
+
+    var newObstacle = document.createElement("div");
+    newObstacle.style.backgroundColor = "white";
+    newObstacle.style.height = "8%";
+    newObstacle.style.width = "6%";
+    newObstacle.style.position = "absolute";
+    newObstacle.style.top = "48%";
+    newObstacle.style.left = "90%";
+
+    setInterval(function(){
+      obstacleX -= 0.5;
+      newObstacle.style.left = obstacleX + "%";
+
+      checkCollision(obstacleX);
+
+    },10);
+
+    document.body.appendChild(newObstacle);
+    var respawnTime = (Math.random()*2000/gameSpeed)+500
+
+    setTimeout(function(){
+      
+      spawnObstacle();
+
+    },respawnTime)
+
+}
+
+function checkCollision(obstacleX)
+  {
+    if(isAlive == false)
+    {
+      return;
+    }
+    else if (obstacleX>36 && obstacleX<44 && boxY>40)
+    {
+      alert("YOU DIED");
+      isAlive = false;
+      if (score>highScore){
+        highScore = score;
+      }
+    
+      localStorage.setItem("highScore",highScore);
+      location.reload();
+    
+    }
+  }
+
+  
+  window.onkeydown = function(e)
+  { 
+    var box = document.getElementById("boxman");
+    if(e.keyCode == 32 || e.keycode == 38)
+    {
+      var steps=0;
+      jumpInterval = setInterval(function(){
+        steps+=1;
+
+        var change_in_y = getChangeY(steps);
+        boxY -= change_in_y;
+        if (boxY > 45)
+        {
+          boxY=45;
+          clearInterval(jumpInterval);
+        } 
+
+       box.style.top = boxY + "%";
+      },10);
+     box.style.top = "40%";
+    }
+  }
+
+  function getChangeY(steps)
+  {
+    var change= (-(steps-12)*(steps-12) + 144)/75;
+    return change;
+  }
+</script>
+<div id="boxman" style="width:2.8%;height:5%;background-color:red; position:absolute;left:40%;top:45%"></div>
+<div id="ground" style ="width:100%;height:45px;background-color:black;position:absolute;left:0%;top:50%"></div>
+<div id="scoring" style = "position:absolute;right:2%;top:5%">High Score:0 Score:0</div>
+</html>
